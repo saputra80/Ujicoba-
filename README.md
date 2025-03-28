@@ -4,15 +4,23 @@ local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 local flyActive = false
 local flySpeed = 50
-local bodyGyro, bodyVelocity
+local connection
 
 local userInput = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 
-local flyDirection = Vector3.zero
+local function startFlying()
+    if connection then connection:Disconnect() end
 
-local function updateFly()
-    if flyActive and bodyVelocity and bodyGyro then
+    local bodyGyro = Instance.new("BodyGyro")
+    bodyGyro.CFrame = humanoidRootPart.CFrame
+    bodyGyro.Parent = humanoidRootPart
+    
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bodyVelocity.Parent = humanoidRootPart
+
+    connection = runService.RenderStepped:Connect(function()
         local camera = workspace.CurrentCamera
         local moveDirection = Vector3.zero
         
@@ -34,33 +42,24 @@ local function updateFly()
         if userInput:IsKeyDown(Enum.KeyCode.LeftShift) then
             moveDirection = moveDirection - Vector3.new(0, 1, 0)
         end
-        
+
         if moveDirection.Magnitude > 0 then
-            flyDirection = moveDirection.Unit * flySpeed
+            bodyVelocity.Velocity = moveDirection.Unit * flySpeed
         else
-            flyDirection = Vector3.zero
+            bodyVelocity.Velocity = Vector3.zero
         end
-        
-        bodyVelocity.Velocity = flyDirection
+
         bodyGyro.CFrame = camera.CFrame
+    end)
+end
+
+local function stopFlying()
+    if connection then connection:Disconnect() end
+    for _, v in pairs(humanoidRootPart:GetChildren()) do
+        if v:IsA("BodyGyro") or v:IsA("BodyVelocity") then
+            v:Destroy()
+        end
     end
-end
-
-local function enableFly()
-    bodyGyro = Instance.new("BodyGyro")
-    bodyGyro.CFrame = humanoidRootPart.CFrame
-    bodyGyro.Parent = humanoidRootPart
-    
-    bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    bodyVelocity.Parent = humanoidRootPart
-    
-    runService.RenderStepped:Connect(updateFly)
-end
-
-local function disableFly()
-    if bodyGyro then bodyGyro:Destroy() end
-    if bodyVelocity then bodyVelocity:Destroy() end
 end
 
 local function createFlyButton(parent, name, position)
@@ -77,10 +76,11 @@ local function createFlyButton(parent, name, position)
         flyActive = not flyActive
         toggle.BackgroundColor3 = flyActive and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
         toggle.Text = name .. (flyActive and " [ON]" or " [OFF]")
+
         if flyActive then
-            enableFly()
+            startFlying()
         else
-            disableFly()
+            stopFlying()
         end
     end)
 end
