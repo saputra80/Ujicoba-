@@ -1,23 +1,56 @@
 local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "MainGui"
-screenGui.Parent = playerGui
+local flyActive = false
+local flySpeed = 50
+local bodyGyro, bodyVelocity
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 150)
-frame.Position = UDim2.new(0.5, -100, 0.5, -75)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.BorderSizePixel = 0
-frame.Parent = screenGui
+local function enableFly()
+    bodyGyro = Instance.new("BodyGyro")
+    bodyGyro.CFrame = character.HumanoidRootPart.CFrame
+    bodyGyro.Parent = character.HumanoidRootPart
 
-local uiCorner = Instance.new("UICorner")
-uiCorner.CornerRadius = UDim.new(0, 10)
-uiCorner.Parent = frame
+    bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.Velocity = Vector3.zero
+    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bodyVelocity.Parent = character.HumanoidRootPart
 
-local function createToggleButton(name, position, onToggle)
-    local toggle = Instance.new("TextButton")
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if flyActive then
+            bodyGyro.CFrame = workspace.CurrentCamera.CFrame
+            local moveDirection = Vector3.zero
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
+                moveDirection = moveDirection + workspace.CurrentCamera.CFrame.LookVector
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
+                moveDirection = moveDirection - workspace.CurrentCamera.CFrame.LookVector
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
+                moveDirection = moveDirection - workspace.CurrentCamera.CFrame.RightVector
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
+                moveDirection = moveDirection + workspace.CurrentCamera.CFrame.RightVector
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
+                moveDirection = moveDirection + Vector3.new(0, 1, 0)
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftShift) then
+                moveDirection = moveDirection - Vector3.new(0, 1, 0)
+            end
+
+            bodyVelocity.Velocity = moveDirection.Unit * flySpeed
+        end
+    end)
+end
+
+local function disableFly()
+    if bodyGyro then bodyGyro:Destroy() end
+    if bodyVelocity then bodyVelocity:Destroy() end
+end
+
+local function createFlyButton(parent, name, position)
+    local toggle = Instance.new("TextButton", parent)
     toggle.Size = UDim2.new(0, 120, 0, 40)
     toggle.Position = UDim2.new(0, position.X, 0, position.Y)
     toggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
@@ -25,36 +58,17 @@ local function createToggleButton(name, position, onToggle)
     toggle.Font = Enum.Font.SourceSansBold
     toggle.TextSize = 20
     toggle.Text = name .. " [OFF]"
-    toggle.Parent = frame
-
-    local isActive = false
 
     toggle.MouseButton1Click:Connect(function()
-        isActive = not isActive
-        toggle.BackgroundColor3 = isActive and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
-        toggle.Text = name .. (isActive and " [ON]" or " [OFF]")
-        onToggle(isActive)
+        flyActive = not flyActive
+        toggle.BackgroundColor3 = flyActive and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
+        toggle.Text = name .. (flyActive and " [ON]" or " [OFF]")
+        if flyActive then
+            enableFly()
+        else
+            disableFly()
+        end
     end)
 end
 
-createToggleButton("Speed", Vector2.new(40, 10), function(isActive)
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    humanoid.WalkSpeed = isActive and 50 or 16
-end)
-
-createToggleButton("Invisible", Vector2.new(40, 60), function(isActive)
-    local character = player.Character or player.CharacterAdded:Wait()
-    for _, part in pairs(character:GetChildren()) do
-        if part:IsA("BasePart") then
-            part.Transparency = isActive and 1 or 0
-            part.CanCollide = not isActive
-        end
-    end
-end)
-
-createToggleButton("Jump", Vector2.new(40, 110), function(isActive)
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    humanoid.JumpPower = isActive and 100 or 50
-end)
+createFlyButton(frame, "Fly", Vector2.new(150, 40))
