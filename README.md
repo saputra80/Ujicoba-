@@ -1,4 +1,4 @@
-```
+print("Hello from README.md") ```
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 local mouse = localPlayer:GetMouse()
