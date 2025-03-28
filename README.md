@@ -51,55 +51,44 @@ local speedActive = false
 local invisibleActive = false
 local jumpActive = false
 
-local function toggleSpeed()
-    speedActive = not speedActive
-    humanoid.WalkSpeed = speedActive and 100 or 16
-    print(speedActive and "Speed ON!" or "Speed OFF!")
+local function createToggleButton(parent, name, position, action)
+    local toggle = Instance.new("TextButton", parent)
+    toggle.Size = UDim2.new(0, 120, 0, 40)
+    toggle.Position = UDim2.new(0, position.X, 0, position.Y)
+    toggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggle.Font = Enum.Font.SourceSansBold
+    toggle.TextSize = 20
+    toggle.Text = name .. " [OFF]"
+
+    local active = false
+    toggle.MouseButton1Click:Connect(function()
+        active = not active
+        toggle.BackgroundColor3 = active and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
+        toggle.Text = name .. (active and " [ON]" or " [OFF]")
+        action(active)
+    end)
 end
 
-local function toggleInvisible()
-    invisibleActive = not invisibleActive
+createToggleButton(frame, "Speed", Vector2.new(10, 40), function(active)
+    speedActive = active
+    humanoid.WalkSpeed = active and 100 or 16
+end)
+
+createToggleButton(frame, "Invisible", Vector2.new(10, 90), function(active)
+    invisibleActive = active
     for _, part in pairs(character:GetDescendants()) do
         if part:IsA("BasePart") or part:IsA("MeshPart") then
-            part.Transparency = invisibleActive and 1 or 0
+            part.Transparency = active and 1 or 0
             if part:IsA("BasePart") then
-                part.CanCollide = not invisibleActive
+                part.CanCollide = not active
             end
         end
     end
-    print(invisibleActive and "Invisible ON!" or "Invisible OFF!")
-end
+end)
 
-local function toggleJump()
-    jumpActive = not jumpActive
+createToggleButton(frame, "Jump", Vector2.new(10, 140), function(active)
+    jumpActive = active
     humanoid.UseJumpPower = true
-    humanoid.JumpPower = jumpActive and 100 or 50
-    print(jumpActive and "Jump Power ON!" or "Jump Power OFF!")
-end
-
-local buttons = {
-    {name = "Home", action = function()
-        print("Home clicked!")
-    end},
-    {name = "Main", action = toggleSpeed},
-    {name = "Other", action = toggleInvisible},
-    {name = "Jump", action = toggleJump},
-    {name = "MoreScript", action = function()
-        print("MoreScript clicked!")
-    end}
-}
-
-for i, buttonData in ipairs(buttons) do
-    local button = Instance.new("TextButton", frame)
-    button.Size = UDim2.new(0, 280, 0, 40)
-    button.Position = UDim2.new(0, 10, 0, 40 * (i - 1) + 40)
-    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.Font = Enum.Font.SourceSansBold
-    button.TextSize = 20
-    button.Text = buttonData.name
-
-    button.MouseButton1Click:Connect(function()
-        buttonData.action()
-    end)
-end
+    humanoid.JumpPower = active and 100 or 50
+end)
