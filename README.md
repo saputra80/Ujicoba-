@@ -2,59 +2,54 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "MainGUI"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = player.PlayerGui
-
-local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 300, 0, 400)
-frame.Position = UDim2.new(0.5, -150, 0.5, -200)
-frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-frame.BorderSizePixel = 2
-frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
-frame.Visible = true
-
-local closeButton = Instance.new("TextButton", frame)
-closeButton.Size = UDim2.new(0, 30, 0, 30)
-closeButton.Position = UDim2.new(1, -35, 0, 5)
-closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-closeButton.Text = "X"
-closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.Font = Enum.Font.SourceSansBold
-closeButton.TextSize = 20
-
-local iconButton = Instance.new("TextButton")
-iconButton.Size = UDim2.new(0, 50, 0, 50)
-iconButton.Position = UDim2.new(0, 10, 0, 10)
-iconButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-iconButton.Text = "JKT"
-iconButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-iconButton.Font = Enum.Font.SourceSansBold
-iconButton.TextSize = 20
-iconButton.Parent = player.PlayerGui
-iconButton.Visible = true
-
-local guiVisible = true
-
-closeButton.MouseButton1Click:Connect(function()
-    guiVisible = false
-    frame.Visible = false
-end)
-
-iconButton.MouseButton1Click:Connect(function()
-    guiVisible = not guiVisible
-    frame.Visible = guiVisible
-end)
-
-local speedActive = false
-local invisibleActive = false
-local jumpActive = false
 local flyActive = false
-local noClipActive = false
-local godModeActive = false
+local flySpeed = 50
+local bodyGyro, bodyVelocity
 
-local function createToggleButton(parent, name, position, action)
+local function enableFly()
+    bodyGyro = Instance.new("BodyGyro")
+    bodyGyro.CFrame = character.HumanoidRootPart.CFrame
+    bodyGyro.Parent = character.HumanoidRootPart
+
+    bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.Velocity = Vector3.zero
+    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bodyVelocity.Parent = character.HumanoidRootPart
+
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if flyActive then
+            bodyGyro.CFrame = workspace.CurrentCamera.CFrame
+            local moveDirection = Vector3.zero
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
+                moveDirection = moveDirection + workspace.CurrentCamera.CFrame.LookVector
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
+                moveDirection = moveDirection - workspace.CurrentCamera.CFrame.LookVector
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
+                moveDirection = moveDirection - workspace.CurrentCamera.CFrame.RightVector
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
+                moveDirection = moveDirection + workspace.CurrentCamera.CFrame.RightVector
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
+                moveDirection = moveDirection + Vector3.new(0, 1, 0)
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftShift) then
+                moveDirection = moveDirection - Vector3.new(0, 1, 0)
+            end
+
+            bodyVelocity.Velocity = moveDirection.Unit * flySpeed
+        end
+    end)
+end
+
+local function disableFly()
+    if bodyGyro then bodyGyro:Destroy() end
+    if bodyVelocity then bodyVelocity:Destroy() end
+end
+
+local function createFlyButton(parent, name, position)
     local toggle = Instance.new("TextButton", parent)
     toggle.Size = UDim2.new(0, 120, 0, 40)
     toggle.Position = UDim2.new(0, position.X, 0, position.Y)
@@ -64,93 +59,16 @@ local function createToggleButton(parent, name, position, action)
     toggle.TextSize = 20
     toggle.Text = name .. " [OFF]"
 
-    local active = false
     toggle.MouseButton1Click:Connect(function()
-        active = not active
-        toggle.BackgroundColor3 = active and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
-        toggle.Text = name .. (active and " [ON]" or " [OFF]")
-        action(active)
+        flyActive = not flyActive
+        toggle.BackgroundColor3 = flyActive and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
+        toggle.Text = name .. (flyActive and " [ON]" or " [OFF]")
+        if flyActive then
+            enableFly()
+        else
+            disableFly()
+        end
     end)
 end
 
-createToggleButton(frame, "Speed", Vector2.new(10, 40), function(active)
-    speedActive = active
-    humanoid.WalkSpeed = active and 100 or 16
-end)
-
-createToggleButton(frame, "Invisible", Vector2.new(10, 90), function(active)
-    invisibleActive = active
-    for _, part in pairs(character:GetDescendants()) do
-        if part:IsA("BasePart") or part:IsA("MeshPart") then
-            part.Transparency = active and 1 or 0
-            if part:IsA("BasePart") then
-                part.CanCollide = not active
-            end
-        end
-    end
-end)
-
-createToggleButton(frame, "Jump", Vector2.new(10, 140), function(active)
-    jumpActive = active
-    humanoid.UseJumpPower = true
-    humanoid.JumpPower = active and 100 or 50
-end)
-
-createToggleButton(frame, "Fly", Vector2.new(150, 40), function(active)
-    flyActive = active
-    local bodyGyro = Instance.new("BodyGyro")
-    local bodyVelocity = Instance.new("BodyVelocity")
-
-    if flyActive then
-        bodyGyro.Parent = character.HumanoidRootPart
-        bodyVelocity.Parent = character.HumanoidRootPart
-
-        game:GetService("RunService").RenderStepped:Connect(function()
-            if flyActive then
-                bodyGyro.CFrame = workspace.CurrentCamera.CFrame
-                bodyVelocity.Velocity = workspace.CurrentCamera.CFrame.LookVector * 50
-            else
-                bodyGyro:Destroy()
-                bodyVelocity:Destroy()
-            end
-        end)
-    else
-        bodyGyro:Destroy()
-        bodyVelocity:Destroy()
-    end
-end)
-
-createToggleButton(frame, "No Clip", Vector2.new(150, 90), function(active)
-    noClipActive = active
-    game:GetService("RunService").Stepped:Connect(function()
-        if noClipActive then
-            for _, part in pairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
-            end
-        end
-    end)
-end)
-
-createToggleButton(frame, "God Mode", Vector2.new(150, 140), function(active)
-    godModeActive = active
-    humanoid.MaxHealth = active and math.huge or 100
-    humanoid.Health = humanoid.MaxHealth
-end)
-
-local teleportButton = Instance.new("TextButton", frame)
-teleportButton.Size = UDim2.new(0, 280, 0, 40)
-teleportButton.Position = UDim2.new(0, 10, 0, 190)
-teleportButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-teleportButton.Font = Enum.Font.SourceSansBold
-teleportButton.TextSize = 20
-teleportButton.Text = "Teleport"
-
-teleportButton.MouseButton1Click:Connect(function()
-    local x = tonumber(game.Players.LocalPlayer.PlayerGui:WaitForChild("TeleportX").Text) or 0
-    local y = tonumber(game.Players.LocalPlayer.PlayerGui:WaitForChild("TeleportY").Text) or 0
-    local z = tonumber(game.Players.LocalPlayer.PlayerGui:WaitForChild("TeleportZ").Text) or 0
-    character.HumanoidRootPart.CFrame = CFrame.new(x, y, z)
-end)
+createFlyButton(frame, "Fly", Vector2.new(150, 40))
