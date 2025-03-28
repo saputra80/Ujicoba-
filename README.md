@@ -4,8 +4,8 @@ local humanoid = character:WaitForChild("Humanoid")
 
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
 local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 300, 0, 300)
-frame.Position = UDim2.new(0.5, -150, 0.5, -150)
+frame.Size = UDim2.new(0, 300, 0, 350)
+frame.Position = UDim2.new(0.5, -150, 0.5, -175)
 frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 frame.BorderSizePixel = 2
 frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
@@ -25,6 +25,7 @@ end)
 
 local speedActive = false
 local invisibleActive = false
+local jumpActive = false
 
 local function toggleSpeed()
     speedActive = not speedActive
@@ -54,12 +55,25 @@ local function toggleInvisible()
     end
 end
 
+local function toggleJump()
+    jumpActive = not jumpActive
+    if jumpActive then
+        humanoid.UseJumpPower = true
+        humanoid.JumpPower = 100
+        print("Jump Power ON!")
+    else
+        humanoid.JumpPower = 50
+        print("Jump Power OFF!")
+    end
+end
+
 local buttons = {
     {name = "Home", action = function()
         print("Home clicked!")
     end},
     {name = "Main", action = toggleSpeed},
     {name = "Other", action = toggleInvisible},
+    {name = "Jump", action = toggleJump},
     {name = "MoreScript", action = function()
         print("MoreScript clicked!")
     end}
