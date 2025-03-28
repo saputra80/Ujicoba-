@@ -2,13 +2,18 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
-local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MainGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player.PlayerGui
+
 local frame = Instance.new("Frame", screenGui)
 frame.Size = UDim2.new(0, 300, 0, 350)
 frame.Position = UDim2.new(0.5, -150, 0.5, -175)
 frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 frame.BorderSizePixel = 2
 frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+frame.Visible = true
 
 local closeButton = Instance.new("TextButton", frame)
 closeButton.Size = UDim2.new(0, 30, 0, 30)
@@ -19,8 +24,7 @@ closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeButton.Font = Enum.Font.SourceSansBold
 closeButton.TextSize = 20
 
--- Tombol buat nampilin GUI
-local toggleButton = Instance.new("TextButton", player.PlayerGui)
+local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 100, 0, 40)
 toggleButton.Position = UDim2.new(0, 10, 0, 10)
 toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
@@ -28,6 +32,8 @@ toggleButton.Text = "Open GUI"
 toggleButton.TextColor3 = Color3.fromRGB(0, 0, 0)
 toggleButton.Font = Enum.Font.SourceSansBold
 toggleButton.TextSize = 16
+toggleButton.Parent = player.PlayerGui
+toggleButton.Visible = true
 
 local guiVisible = true
 
