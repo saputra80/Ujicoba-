@@ -24,16 +24,16 @@ closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeButton.Font = Enum.Font.SourceSansBold
 closeButton.TextSize = 20
 
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 100, 0, 40)
-toggleButton.Position = UDim2.new(0, 10, 0, 10)
-toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-toggleButton.Text = "Open GUI"
-toggleButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-toggleButton.Font = Enum.Font.SourceSansBold
-toggleButton.TextSize = 16
-toggleButton.Parent = player.PlayerGui
-toggleButton.Visible = true
+local iconButton = Instance.new("TextButton")
+iconButton.Size = UDim2.new(0, 50, 0, 50)
+iconButton.Position = UDim2.new(0, 10, 0, 10)
+iconButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+iconButton.Text = "JKT"
+iconButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+iconButton.Font = Enum.Font.SourceSansBold
+iconButton.TextSize = 20
+iconButton.Parent = player.PlayerGui
+iconButton.Visible = true
 
 local guiVisible = true
 
@@ -42,7 +42,7 @@ closeButton.MouseButton1Click:Connect(function()
     frame.Visible = false
 end)
 
-toggleButton.MouseButton1Click:Connect(function()
+iconButton.MouseButton1Click:Connect(function()
     guiVisible = not guiVisible
     frame.Visible = guiVisible
 end)
