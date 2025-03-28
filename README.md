@@ -19,8 +19,26 @@ closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeButton.Font = Enum.Font.SourceSansBold
 closeButton.TextSize = 20
 
+-- Tombol buat nampilin GUI
+local toggleButton = Instance.new("TextButton", player.PlayerGui)
+toggleButton.Size = UDim2.new(0, 100, 0, 40)
+toggleButton.Position = UDim2.new(0, 10, 0, 10)
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+toggleButton.Text = "Open GUI"
+toggleButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextSize = 16
+
+local guiVisible = true
+
 closeButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
+    guiVisible = false
+    frame.Visible = false
+end)
+
+toggleButton.MouseButton1Click:Connect(function()
+    guiVisible = not guiVisible
+    frame.Visible = guiVisible
 end)
 
 local speedActive = false
@@ -29,13 +47,8 @@ local jumpActive = false
 
 local function toggleSpeed()
     speedActive = not speedActive
-    if speedActive then
-        humanoid.WalkSpeed = 100
-        print("Speed ON!")
-    else
-        humanoid.WalkSpeed = 16
-        print("Speed OFF!")
-    end
+    humanoid.WalkSpeed = speedActive and 100 or 16
+    print(speedActive and "Speed ON!" or "Speed OFF!")
 end
 
 local function toggleInvisible()
@@ -48,23 +61,14 @@ local function toggleInvisible()
             end
         end
     end
-    if invisibleActive then
-        print("Invisible ON!")
-    else
-        print("Invisible OFF!")
-    end
+    print(invisibleActive and "Invisible ON!" or "Invisible OFF!")
 end
 
 local function toggleJump()
     jumpActive = not jumpActive
-    if jumpActive then
-        humanoid.UseJumpPower = true
-        humanoid.JumpPower = 100
-        print("Jump Power ON!")
-    else
-        humanoid.JumpPower = 50
-        print("Jump Power OFF!")
-    end
+    humanoid.UseJumpPower = true
+    humanoid.JumpPower = jumpActive and 100 or 50
+    print(jumpActive and "Jump Power ON!" or "Jump Power OFF!")
 end
 
 local buttons = {
