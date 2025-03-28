@@ -1,47 +1,59 @@
-print("Hello from README.md") ```
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
-local mouse = localPlayer:GetMouse()
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local Buttons = {}
 
-local function killPlayer(target)
-    if target and target:FindFirstChild("Humanoid") then
-        target.Humanoid.Health = 0
-        print("Pemain " .. target.Name .. " telah dibunuh!")
-    end
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.Size = UDim2.new(0, 400, 0, 300)
+Frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+
+Title.Parent = Frame
+Title.Text = "xx Jakarta xx"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 24
+
+local function createButton(name, position)
+    local Button = Instance.new("TextButton")
+    Button.Parent = Frame
+    Button.Text = name
+    Button.Size = UDim2.new(0, 100, 0, 30)
+    Button.Position = UDim2.new(0, 10, 0, position)
+    Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.SourceSans
+    Button.TextSize = 18
+
+    Button.MouseButton1Click:Connect(function()
+        print(name .. " Clicked!")
+    end)
+
+    table.insert(Buttons, Button)
 end
 
-local function startSpectating(target)
-    if target and target:FindFirstChild("Humanoid") then
-        workspace.CurrentCamera.CameraSubject = target.Humanoid
-        print("Sedang menyaksikan: " .. target.Name)
-    end
-end
+createButton("Home", 40)
+createButton("Main", 80)
+createButton("GhostScript", 120)
+createButton("Other", 160)
+createButton("GameHub", 200)
+createButton("MoreScript", 240)
+createButton("Information", 280)
 
-local function stopSpectating()
-    workspace.CurrentCamera.CameraSubject = localPlayer.Character.Humanoid
-    print("Berhenti menyaksikan")
-end
+local CloseButton = Instance.new("TextButton")
+CloseButton.Parent = Frame
+CloseButton.Text = "X"
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -40, 0, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.TextSize = 20
 
-mouse.Button1Down:Connect(function()
-    local target = mouse.Target and mouse.Target.Parent
-    if target and target:IsA("Model") and Players:GetPlayerFromCharacter(target) then
-        killPlayer(target)
-    end
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
 end)
-
-local spectating = false
-mouse.KeyDown:Connect(function(key)
-    if key == "e" then
-        local target = mouse.Target and mouse.Target.Parent
-        if target and target:IsA("Model") and Players:GetPlayerFromCharacter(target) then
-            if not spectating then
-                startSpectating(target)
-                spectating = true
-            else
-                stopSpectating()
-                spectating = false
-            end
-        end
-    end
-end)
-```# Ujicoba-
