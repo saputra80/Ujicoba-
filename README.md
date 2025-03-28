@@ -39,9 +39,12 @@ end
 
 local function toggleInvisible()
     invisibleActive = not invisibleActive
-    for _, part in pairs(character:GetChildren()) do
-        if part:IsA("BasePart") and part.Transparency ~= nil then
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") or part:IsA("MeshPart") then
             part.Transparency = invisibleActive and 1 or 0
+            if part:IsA("BasePart") then
+                part.CanCollide = not invisibleActive
+            end
         end
     end
     if invisibleActive then
