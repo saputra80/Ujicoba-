@@ -1,7 +1,6 @@
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
-local rs = game:GetService("RunService")
 
 local gui = Instance.new("ScreenGui")
 gui.Parent = player.PlayerGui
@@ -42,63 +41,25 @@ local function createButton(name, position, callback)
     button.MouseButton1Click:Connect(callback)
 end
 
--- Home Button
 createButton("Home", 40, function()
     print("Home Button Clicked")
 end)
 
--- Main Button
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 200, 0, 300)
+mainFrame.Position = UDim2.new(1, 10, 0, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.Visible = false
+mainFrame.Parent = frame
+
 createButton("Main", 80, function()
-    local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 200, 0, 300)
-    mainFrame.Position = UDim2.new(1, 10, 0, 0)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    mainFrame.Parent = frame
-    
-    -- Invisible
-    createButton("Invisible", 0, function()
-        for _, part in pairs(character:GetChildren()) do
-            if part:IsA("BasePart") then
-                part.Transparency = 1
-            end
-        end
-    end).Parent = mainFrame
-
-    -- Lempar Player
-    createButton("Throw Player", 40, function()
-        if humanoid then
-            humanoid:Move(Vector3.new(0, 50, 0), true)
-        end
-    end).Parent = mainFrame
-
-    -- Speed
-    createButton("Speed", 80, function()
-        humanoid.WalkSpeed = 100
-    end).Parent = mainFrame
-    
-    -- Jump Power
-    createButton("Jump Power", 120, function()
-        humanoid.JumpPower = 150
-    end).Parent = mainFrame
-    
-    -- Spectator Mode
-    createButton("Spectator Mode", 160, function()
-        local cam = workspace.CurrentCamera
-        cam.CameraSubject = nil
-    end).Parent = mainFrame
-    
-    -- Teleport
-    createButton("Teleport", 200, function()
-        character:SetPrimaryPartCFrame(CFrame.new(0, 50, 0))
-    end).Parent = mainFrame
-    
-    -- Close Main Frame
-    createButton("Close", 240, function()
-        mainFrame:Destroy()
-    end).Parent = mainFrame
+    mainFrame.Visible = not mainFrame.Visible
 end)
 
--- Other Button
-createButton("Other", 120, function()
-    print("Other Button Clicked")
-end)
+local function createMainButton(name, position, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 40)
+    button.Position = UDim2.new(0, 0, 0, position)
+    button.Text = name
+    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    button.TextColor3 = Color3.fromRGB
