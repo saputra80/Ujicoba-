@@ -8,8 +8,8 @@ screenGui.ResetOnSpawn = false
 screenGui.Parent = player.PlayerGui
 
 local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 300, 0, 350)
-frame.Position = UDim2.new(0.5, -150, 0.5, -175)
+frame.Size = UDim2.new(0, 300, 0, 400)
+frame.Position = UDim2.new(0.5, -150, 0.5, -200)
 frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 frame.BorderSizePixel = 2
 frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
@@ -50,6 +50,9 @@ end)
 local speedActive = false
 local invisibleActive = false
 local jumpActive = false
+local flyActive = false
+local noClipActive = false
+local godModeActive = false
 
 local function createToggleButton(parent, name, position, action)
     local toggle = Instance.new("TextButton", parent)
@@ -91,4 +94,63 @@ createToggleButton(frame, "Jump", Vector2.new(10, 140), function(active)
     jumpActive = active
     humanoid.UseJumpPower = true
     humanoid.JumpPower = active and 100 or 50
+end)
+
+createToggleButton(frame, "Fly", Vector2.new(150, 40), function(active)
+    flyActive = active
+    local bodyGyro = Instance.new("BodyGyro")
+    local bodyVelocity = Instance.new("BodyVelocity")
+
+    if flyActive then
+        bodyGyro.Parent = character.HumanoidRootPart
+        bodyVelocity.Parent = character.HumanoidRootPart
+
+        game:GetService("RunService").RenderStepped:Connect(function()
+            if flyActive then
+                bodyGyro.CFrame = workspace.CurrentCamera.CFrame
+                bodyVelocity.Velocity = workspace.CurrentCamera.CFrame.LookVector * 50
+            else
+                bodyGyro:Destroy()
+                bodyVelocity:Destroy()
+            end
+        end)
+    else
+        bodyGyro:Destroy()
+        bodyVelocity:Destroy()
+    end
+end)
+
+createToggleButton(frame, "No Clip", Vector2.new(150, 90), function(active)
+    noClipActive = active
+    game:GetService("RunService").Stepped:Connect(function()
+        if noClipActive then
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end)
+end)
+
+createToggleButton(frame, "God Mode", Vector2.new(150, 140), function(active)
+    godModeActive = active
+    humanoid.MaxHealth = active and math.huge or 100
+    humanoid.Health = humanoid.MaxHealth
+end)
+
+local teleportButton = Instance.new("TextButton", frame)
+teleportButton.Size = UDim2.new(0, 280, 0, 40)
+teleportButton.Position = UDim2.new(0, 10, 0, 190)
+teleportButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+teleportButton.Font = Enum.Font.SourceSansBold
+teleportButton.TextSize = 20
+teleportButton.Text = "Teleport"
+
+teleportButton.MouseButton1Click:Connect(function()
+    local x = tonumber(game.Players.LocalPlayer.PlayerGui:WaitForChild("TeleportX").Text) or 0
+    local y = tonumber(game.Players.LocalPlayer.PlayerGui:WaitForChild("TeleportY").Text) or 0
+    local z = tonumber(game.Players.LocalPlayer.PlayerGui:WaitForChild("TeleportZ").Text) or 0
+    character.HumanoidRootPart.CFrame = CFrame.new(x, y, z)
 end)
