@@ -1,47 +1,61 @@
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 local flyActive = false
 local flySpeed = 50
 local bodyGyro, bodyVelocity
 
+local userInput = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+
+local flyDirection = Vector3.zero
+
+local function updateFly()
+    if flyActive and bodyVelocity and bodyGyro then
+        local camera = workspace.CurrentCamera
+        local moveDirection = Vector3.zero
+        
+        if userInput:IsKeyDown(Enum.KeyCode.W) then
+            moveDirection = moveDirection + camera.CFrame.LookVector
+        end
+        if userInput:IsKeyDown(Enum.KeyCode.S) then
+            moveDirection = moveDirection - camera.CFrame.LookVector
+        end
+        if userInput:IsKeyDown(Enum.KeyCode.A) then
+            moveDirection = moveDirection - camera.CFrame.RightVector
+        end
+        if userInput:IsKeyDown(Enum.KeyCode.D) then
+            moveDirection = moveDirection + camera.CFrame.RightVector
+        end
+        if userInput:IsKeyDown(Enum.KeyCode.Space) then
+            moveDirection = moveDirection + Vector3.new(0, 1, 0)
+        end
+        if userInput:IsKeyDown(Enum.KeyCode.LeftShift) then
+            moveDirection = moveDirection - Vector3.new(0, 1, 0)
+        end
+        
+        if moveDirection.Magnitude > 0 then
+            flyDirection = moveDirection.Unit * flySpeed
+        else
+            flyDirection = Vector3.zero
+        end
+        
+        bodyVelocity.Velocity = flyDirection
+        bodyGyro.CFrame = camera.CFrame
+    end
+end
+
 local function enableFly()
     bodyGyro = Instance.new("BodyGyro")
-    bodyGyro.CFrame = character.HumanoidRootPart.CFrame
-    bodyGyro.Parent = character.HumanoidRootPart
-
+    bodyGyro.CFrame = humanoidRootPart.CFrame
+    bodyGyro.Parent = humanoidRootPart
+    
     bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.Velocity = Vector3.zero
     bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    bodyVelocity.Parent = character.HumanoidRootPart
-
-    game:GetService("RunService").RenderStepped:Connect(function()
-        if flyActive then
-            bodyGyro.CFrame = workspace.CurrentCamera.CFrame
-            local moveDirection = Vector3.zero
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
-                moveDirection = moveDirection + workspace.CurrentCamera.CFrame.LookVector
-            end
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
-                moveDirection = moveDirection - workspace.CurrentCamera.CFrame.LookVector
-            end
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
-                moveDirection = moveDirection - workspace.CurrentCamera.CFrame.RightVector
-            end
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
-                moveDirection = moveDirection + workspace.CurrentCamera.CFrame.RightVector
-            end
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
-                moveDirection = moveDirection + Vector3.new(0, 1, 0)
-            end
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftShift) then
-                moveDirection = moveDirection - Vector3.new(0, 1, 0)
-            end
-
-            bodyVelocity.Velocity = moveDirection.Unit * flySpeed
-        end
-    end)
+    bodyVelocity.Parent = humanoidRootPart
+    
+    runService.RenderStepped:Connect(updateFly)
 end
 
 local function disableFly()
