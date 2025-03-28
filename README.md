@@ -23,21 +23,35 @@ closeButton.MouseButton1Click:Connect(function()
     screenGui:Destroy()
 end)
 
+local speedActive = false
+local invisibleActive = false
+
 local buttons = {
     {name = "Home", action = function()
         print("Home clicked!")
     end},
     {name = "Main", action = function()
-        humanoid.WalkSpeed = 100
-        print("Speed activated!")
+        speedActive = not speedActive
+        if speedActive then
+            humanoid.WalkSpeed = 100
+            print("Speed ON!")
+        else
+            humanoid.WalkSpeed = 16
+            print("Speed OFF!")
+        end
     end},
     {name = "Other", action = function()
+        invisibleActive = not invisibleActive
         for _, part in pairs(character:GetChildren()) do
             if part:IsA("BasePart") then
-                part.Transparency = 1
+                part.Transparency = invisibleActive and 1 or 0
             end
         end
-        print("Invisible activated!")
+        if invisibleActive then
+            print("Invisible ON!")
+        else
+            print("Invisible OFF!")
+        end
     end},
     {name = "MoreScript", action = function()
         print("MoreScript clicked!")
