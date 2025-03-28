@@ -19,8 +19,6 @@ title.Size = UDim2.new(1, 0, 0, 30)
 title.Text = "xx Jakarta xx"
 title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.Font = Enum.Font.SourceSansBold
-title.TextSize = 24
 title.Parent = frame
 
 local closeButton = Instance.new("TextButton")
