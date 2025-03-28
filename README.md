@@ -26,33 +26,37 @@ end)
 local speedActive = false
 local invisibleActive = false
 
+local function toggleSpeed()
+    speedActive = not speedActive
+    if speedActive then
+        humanoid.WalkSpeed = 100
+        print("Speed ON!")
+    else
+        humanoid.WalkSpeed = 16
+        print("Speed OFF!")
+    end
+end
+
+local function toggleInvisible()
+    invisibleActive = not invisibleActive
+    for _, part in pairs(character:GetChildren()) do
+        if part:IsA("BasePart") and part.Transparency ~= nil then
+            part.Transparency = invisibleActive and 1 or 0
+        end
+    end
+    if invisibleActive then
+        print("Invisible ON!")
+    else
+        print("Invisible OFF!")
+    end
+end
+
 local buttons = {
     {name = "Home", action = function()
         print("Home clicked!")
     end},
-    {name = "Main", action = function()
-        speedActive = not speedActive
-        if speedActive then
-            humanoid.WalkSpeed = 100
-            print("Speed ON!")
-        else
-            humanoid.WalkSpeed = 16
-            print("Speed OFF!")
-        end
-    end},
-    {name = "Other", action = function()
-        invisibleActive = not invisibleActive
-        for _, part in pairs(character:GetChildren()) do
-            if part:IsA("BasePart") then
-                part.Transparency = invisibleActive and 1 or 0
-            end
-        end
-        if invisibleActive then
-            print("Invisible ON!")
-        else
-            print("Invisible OFF!")
-        end
-    end},
+    {name = "Main", action = toggleSpeed},
+    {name = "Other", action = toggleInvisible},
     {name = "MoreScript", action = function()
         print("MoreScript clicked!")
     end}
