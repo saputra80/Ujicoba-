@@ -1,59 +1,106 @@
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local Buttons = {}
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rs = game:GetService("RunService")
 
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local gui = Instance.new("ScreenGui")
+gui.Parent = player.PlayerGui
+gui.Name = "CustomGUI"
 
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Frame.Size = UDim2.new(0, 400, 0, 300)
-Frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 400)
+frame.Position = UDim2.new(0.5, -150, 0.5, -200)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderSizePixel = 2
+frame.Parent = gui
 
-Title.Parent = Frame
-Title.Text = "xx Jakarta xx"
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 24
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "xx Jakarta xx"
+title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 24
+title.Parent = frame
 
-local function createButton(name, position)
-    local Button = Instance.new("TextButton")
-    Button.Parent = Frame
-    Button.Text = name
-    Button.Size = UDim2.new(0, 100, 0, 30)
-    Button.Position = UDim2.new(0, 10, 0, position)
-    Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.Font = Enum.Font.SourceSans
-    Button.TextSize = 18
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -30, 0, 0)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.Parent = frame
+closeButton.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
 
-    Button.MouseButton1Click:Connect(function()
-        print(name .. " Clicked!")
-    end)
-
-    table.insert(Buttons, Button)
+local function createButton(name, position, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 40)
+    button.Position = UDim2.new(0, 0, 0, position)
+    button.Text = name
+    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Parent = frame
+    button.MouseButton1Click:Connect(callback)
 end
 
-createButton("Home", 40)
-createButton("Main", 80)
-createButton("GhostScript", 120)
-createButton("Other", 160)
-createButton("GameHub", 200)
-createButton("MoreScript", 240)
-createButton("Information", 280)
+-- Home Button
+createButton("Home", 40, function()
+    print("Home Button Clicked")
+end)
 
-local CloseButton = Instance.new("TextButton")
-CloseButton.Parent = Frame
-CloseButton.Text = "X"
-CloseButton.Size = UDim2.new(0, 30, 0, 30)
-CloseButton.Position = UDim2.new(1, -40, 0, 0)
-CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.Font = Enum.Font.SourceSansBold
-CloseButton.TextSize = 20
+-- Main Button
+createButton("Main", 80, function()
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.new(0, 200, 0, 300)
+    mainFrame.Position = UDim2.new(1, 10, 0, 0)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    mainFrame.Parent = frame
+    
+    -- Invisible
+    createButton("Invisible", 0, function()
+        for _, part in pairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.Transparency = 1
+            end
+        end
+    end).Parent = mainFrame
 
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
+    -- Lempar Player
+    createButton("Throw Player", 40, function()
+        if humanoid then
+            humanoid:Move(Vector3.new(0, 50, 0), true)
+        end
+    end).Parent = mainFrame
+
+    -- Speed
+    createButton("Speed", 80, function()
+        humanoid.WalkSpeed = 100
+    end).Parent = mainFrame
+    
+    -- Jump Power
+    createButton("Jump Power", 120, function()
+        humanoid.JumpPower = 150
+    end).Parent = mainFrame
+    
+    -- Spectator Mode
+    createButton("Spectator Mode", 160, function()
+        local cam = workspace.CurrentCamera
+        cam.CameraSubject = nil
+    end).Parent = mainFrame
+    
+    -- Teleport
+    createButton("Teleport", 200, function()
+        character:SetPrimaryPartCFrame(CFrame.new(0, 50, 0))
+    end).Parent = mainFrame
+    
+    -- Close Main Frame
+    createButton("Close", 240, function()
+        mainFrame:Destroy()
+    end).Parent = mainFrame
+end)
+
+-- Other Button
+createButton("Other", 120, function()
+    print("Other Button Clicked")
 end)
